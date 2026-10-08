@@ -92,35 +92,42 @@ class BTOutlineTestCase(unittest.TestCase):
             {"id": "iv-1", "num": "01", "title": "品牌战略", "target_audience": "集团高管", "duration": "90 分钟",
              "meta": {"objectives": "品牌定位", "capability_coverage_summary": "品牌战略（1项L3）"},
              "phases": [
-                 phase(1, "暖场破冰", "intro", "组织", "破冰", questions=[self._q("介绍团队？", vs=["vs1"], caps=["l2-01"])]),
+                 phase(1, "暖场与职责了解", "intro", "组织", "破冰", questions=[self._q("介绍团队？", vs=["vs1"], caps=["l2-01"])]),
                  phase(2, "业务全景", "panorama", "品牌全貌", "全景", blocks=[{"area_num": 1, "area_title": "品牌定位", "capability_ref": {"l2_id": "l2-01", "l2_name": "品牌战略", "l3_names": ["品牌定位"]}, "questions": [self._q("品牌定位？", vs=["vs1"], caps=["l2-01"])]}]),
-                 phase(3, "流程深挖", "deepdive", "战略流程", "深挖", blocks=[{"area_num": 1, "area_title": "战略制定", "capability_ref": {"l2_id": "l2-01", "l2_name": "品牌战略", "l3_count": 1}, "questions": [self._q("决策顺序？", vs=["vs1", "vs2"], caps=["l2-01", "l2-02"])]}]),
-                 phase(4, "痛点唤醒", "awaken", "挑战", "唤醒", questions=[self._q("品牌认知低是否获客难？", ptype="引导思考", vs=["vs1"], caps=["l2-01"])]),
-                 phase(5, "变革期望", "expectation", "诉求", "期望", questions=[self._q("最想改变什么？", vs=["vs1"], caps=["l2-01"])]),
+                 phase(3, "运行机制与具体案例", "deepdive", "战略流程", "深挖", blocks=[{"area_num": 1, "area_title": "战略制定", "capability_ref": {"l2_id": "l2-01", "l2_name": "品牌战略", "l3_count": 1}, "questions": [self._q("决策顺序？", vs=["vs1", "vs2"], caps=["l2-01", "l2-02"])]}]),
+                 phase(4, "挑战与机会探索", "awaken", "挑战", "唤醒", questions=[self._q("目前客户对品牌的反馈主要有哪些？", ptype="引导思考", vs=["vs1"], caps=["l2-01"])]),
+                 phase(5, "保留与改进期望", "expectation", "诉求", "期望", questions=[self._q("哪些做法值得保留，哪些希望改进？", vs=["vs1"], caps=["l2-01"])]),
              ], "expected_output": ["品牌定位确认"]},
             {"id": "iv-2", "num": "02", "title": "GTM上市", "target_audience": "产品团队", "duration": "90 分钟",
              "meta": {"objectives": "GTM", "capability_coverage_summary": "GTM（1项L3）"},
              "phases": [
-                 phase(1, "暖场破冰", "intro", "组织", "破冰", questions=[self._q("GTM团队？", vs=["vs2"], caps=["l2-02"])]),
+                 phase(1, "暖场与职责了解", "intro", "组织", "破冰", questions=[self._q("GTM团队？", vs=["vs2"], caps=["l2-02"])]),
                  phase(2, "业务全景", "panorama", "GTM全貌", "全景", blocks=[{"area_num": 1, "area_title": "GTM策略", "capability_ref": {"l2_id": "l2-02", "l2_name": "GTM", "l3_names": ["GTM策略"]}, "questions": [self._q("GTM流程？", vs=["vs2"], caps=["l2-02"])]}]),
-                 phase(3, "流程深挖", "deepdive", "上市细节", "深挖", blocks=[{"area_num": 1, "area_title": "上市协同", "capability_ref": {"l2_id": "l2-02", "l2_name": "GTM", "l3_count": 1}, "questions": [self._q("上市节奏？", vs=["vs2"], caps=["l2-02"])]}]),
-                 phase(4, "痛点唤醒", "awaken", "挑战", "唤醒", questions=[self._q("脉冲与日常协同？", ptype="引导思考", vs=["vs2"], caps=["l2-02"])]),
-                 phase(5, "变革期望", "expectation", "诉求", "期望", questions=[self._q("升级什么？", vs=["vs2"], caps=["l2-02"])]),
+                 phase(3, "运行机制与具体案例", "deepdive", "上市细节", "深挖", blocks=[{"area_num": 1, "area_title": "上市协同", "capability_ref": {"l2_id": "l2-02", "l2_name": "GTM", "l3_count": 1}, "questions": [self._q("上市节奏？", vs=["vs2"], caps=["l2-02"])]}]),
+                 phase(4, "挑战与机会探索", "awaken", "挑战", "唤醒", questions=[self._q("脉冲与日常协同？", ptype="引导思考", vs=["vs2"], caps=["l2-02"])]),
+                 phase(5, "保留与改进期望", "expectation", "诉求", "期望", questions=[self._q("接下来希望保留或调整哪些做法？", vs=["vs2"], caps=["l2-02"])]),
              ], "expected_output": ["GTM流程现状"]},
             {"id": "iv-3", "num": "03", "title": "媒介线索", "target_audience": "投放团队", "duration": "90 分钟",
              "meta": {"objectives": "投放线索", "capability_coverage_summary": "媒介投放（1项L3）· 线索管理（4项L3）"},
              "phases": [
-                 phase(1, "暖场破冰", "intro", "组织", "破冰", questions=[self._q("是否同一团队？", vs=["vs3"], caps=["l2-03"])]),
+                 phase(1, "暖场与职责了解", "intro", "组织", "破冰", questions=[self._q("是否同一团队？", vs=["vs3"], caps=["l2-03"])]),
                  phase(2, "业务全景", "panorama", "投放线索全貌", "全景", blocks=[
                      {"area_num": 1, "area_title": "投放", "capability_ref": {"l2_id": "l2-03", "l2_name": "媒介投放", "l3_names": ["投放管理"]}, "questions": [self._q("投放策略？", vs=["vs3"], caps=["l2-03"])]},
                      {"area_num": 2, "area_title": "线索", "capability_ref": {"l2_id": "l2-04", "l2_name": "线索管理", "l3_count": 4}, "questions": [self._q("线索链路？", vs=["vs3", "vs4"], caps=["l2-04"])]},
                  ]),
-                 phase(3, "流程深挖", "deepdive", "转化细节", "深挖", blocks=[{"area_num": 1, "area_title": "转化", "capability_ref": {"l2_id": "l2-04", "l2_name": "线索管理", "l3_count": 4}, "questions": [self._q("首次跟进时长？", vs=["vs3", "vs4"], caps=["l2-04"])]}]),
-                 phase(4, "痛点唤醒", "awaken", "挑战", "唤醒", questions=[self._q("CPL水平？", ptype="引导思考", vs=["vs3", "vs4"], caps=["l2-03", "l2-04"])]),
-                 phase(5, "变革期望", "expectation", "诉求", "期望", questions=[self._q("升级什么？", vs=["vs3", "vs4"], caps=["l2-03", "l2-04"])]),
+                 phase(3, "运行机制与具体案例", "deepdive", "转化细节", "深挖", blocks=[{"area_num": 1, "area_title": "转化", "capability_ref": {"l2_id": "l2-04", "l2_name": "线索管理", "l3_count": 4}, "questions": [self._q("首次跟进时长？", vs=["vs3", "vs4"], caps=["l2-04"])]}]),
+                 phase(4, "挑战与机会探索", "awaken", "挑战", "唤醒", questions=[self._q("CPL水平？", ptype="引导思考", vs=["vs3", "vs4"], caps=["l2-03", "l2-04"])]),
+                 phase(5, "保留与改进期望", "expectation", "诉求", "期望", questions=[self._q("接下来希望保留或调整哪些做法？", vs=["vs3", "vs4"], caps=["l2-03", "l2-04"])]),
              ], "expected_output": ["投放全景", "线索链路"]},
         ]
-        return {"schema_version": "1.0", "stage_id": "stage_03_interview_drafting", "project_name": "测试项目", "plan_ref": {"plan_path": "x", "plan_sha256": "x"}, "guides": guides}
+        for g in guides:
+            for phase in g["phases"]:
+                questions = (phase.get("questions") or []) + [q for b in phase.get("blocks") or [] for q in b["questions"]]
+                for index, q in enumerate(questions, 1):
+                    q["id"] = f"{g['id']}-p{phase['phase_no']}-q{index}"
+                    for probe in q["probes"]:
+                        probe["when"] = "always"
+        return {"schema_version": "1.0", "content_policy": "neutral-v1", "stage_id": "stage_03_interview_drafting", "project_name": "测试项目", "plan_ref": {"plan_path": "x", "plan_sha256": "x"}, "guides": guides}
 
     def pass_stage(self, stage: str) -> None:
         self.assertEqual(run("start", str(self.ws), "--stage", stage).returncode, 0)

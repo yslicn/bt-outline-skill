@@ -33,3 +33,9 @@
 
 - 阶段02 输入：`input_baseline.json`（locked）→ 输出 `interview_plan.json`
 - 阶段03 输入：`interview_plan.json` + `input_baseline.json`（均 locked）→ 输出 `interview_guide_full.json`
+
+## v1.1 内容规则与验收
+
+必读 `methodology/neutral_questioning.md`。不得仅凭行业真实性、引导词或覆盖映射判PASS；逐题检查事实、因果、责任及方案前提，检查否定/未知后是否可继续。主问、probe、标题和预期输出一起审查。新提纲填 `content_policy=neutral-v1`、稳定问题id、probe.when及必要condition；有前提时填premise_refs。
+
+阶段03内容REVISE提交 `--issues-file`，定位问题id和主问/probe；重审PASS须核对真实修改或明确的不适用理由。行业现象不能证明本企业有问题。客户版不显示内部映射和追问，访谈员版保留。

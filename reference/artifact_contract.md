@@ -1,8 +1,8 @@
 # 产物契约
 
-## JSON 是唯一事实源
+## JSON 是唯一结构化数据源
 
-- 每个阶段的正式 JSON 是该阶段唯一事实源。MD/HTML/docx 只能由 runtime 确定性生成，禁止手工编写。
+- 每个阶段的正式 JSON 是该阶段唯一结构化数据源；材料陈述和假设仍须保留核实状态，锁定不等于事实已验证。MD/HTML/docx只能由runtime生成，禁止手工编写。
 - JSON 变更后，旧评审自动失效：必须重新 `submit`（重新校验 + 重新计算 SHA-256）并重审，才可 `approve`。
 
 ## 阶段产物链
@@ -38,3 +38,9 @@ requirement.json ──(scope_confirmed)──▶ input_baseline.json
 ## 同源约束
 
 - HTML 与 docx 必须消费**同一** `render_input.json` 渲染，不得分别手工编写（机器门校验 source sha 一致）。
+
+## v1.1双视图与修订
+
+根目录HTML/docx为客户版，interviewer/为访谈员版，两版从同一render_input投影，全部文件进入candidate_manifest并绑定hash。客户版隐藏内部字段，不修改主问。
+
+阶段03逐题意见保存在review/issues_<role>.json，重提交不清空未关闭issue。REVISE绑定问题ID与修改前正文/probe，PASS核对当前after；只有元信息改动不能标记resolved。不适用关闭须有解释，由独立评审者承担判断。格式见runtime_commands.md。

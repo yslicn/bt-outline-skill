@@ -8,7 +8,7 @@
 
 ## input_baseline.json（阶段01）
 
-`value_streams[]{id,name,short_name,trigger?,outcome?}` · `capability_model{root{id,name}, layers[]{attribute(战略|核心|支持), l2_groups[]{id,name,l3[]{id,name}}}}` · `stakeholders[]{id,name,type,role,focus_areas[]}` · `strategic_tensions[]{id,statement,source_ref}`（3-7条必填）· `scope_boundaries[]` · `data_gaps[]`
+`value_streams[]{id,name,short_name,trigger?,outcome?}` · `capability_model{root{id,name}, layers[]{attribute(战略|核心|支持), l2_groups[]{id,name,l3[]{id,name}}}}` · `stakeholders[]{id,name,type,role,focus_areas[]}` · `strategic_tensions[]{id,statement,source_ref}`（可为空，不凑数量）· `scope_boundaries[]` · `data_gaps[]`
 
 ## interview_plan.json（阶段02）
 
@@ -22,7 +22,9 @@ phase：`phase_no(1-5)` · `name` · `layer_type(intro|panorama|deepdive|awaken|
 
 block：`area_num` · `area_title` · `capability_ref{l2_id,l2_name,l3_names[]|l3_count}` · `questions[]`
 
-question：`text` · `probes[]{type(追问|引导思考),text}` · `vs_refs[]` · `capability_refs[]`
+question：`id` · `text`（短主问） · `interviewer_context?` · `premise_refs[]?` · `probes[]{type(追问|引导思考),text,when(always|confirmed|denied|unknown),condition?}` · `vs_refs[]` · `capability_refs[]`
+
+新提纲根级填 `content_policy=neutral-v1` 启用ID、双引用和分支硬门；旧锁定数据可缺省。战略议题新增 `verification_status(reported|verified|hypothesis)`、`verification_note?`；新议题有核实状态时检查来源材料ID与位置，verified须有说明。字段名strategic_tensions保持兼容，不要求凑数量。
 
 ## render_input.json（阶段04，runtime 投影生成）
 

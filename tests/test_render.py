@@ -36,7 +36,7 @@ def sample_render_input() -> dict:
             "progression": "五步法层层递进",
             "layer_definitions": [
                 {"name": "破冰问题", "definition": "建立信任"},
-                {"name": "唤醒问题", "definition": "让客户自己发现问题"},
+                {"name": "唤醒问题", "definition": "核实挑战、机会与适用边界"},
             ],
             "capability_alignment": "问题标注VS与L2/L3",
         },
@@ -59,7 +59,7 @@ def sample_render_input() -> dict:
                  {"phase_no": 1, "name": "暖场破冰", "layer_type": "intro", "title": "组织", "description": "破冰", "blocks": None, "questions": [{"text": "介绍团队？", "probes": [{"type": "追问", "text": "规模？"}]}]},
                  {"phase_no": 2, "name": "业务全景", "layer_type": "panorama", "title": "品牌全貌", "description": "全景", "blocks": [{"area_num": 1, "area_title": "品牌定位", "capability_ref": {"l2_id": "l2-01", "l2_name": "品牌战略", "l3_names": ["品牌定位"]}, "questions": [{"text": "品牌定位？", "probes": [{"type": "追问", "text": "客群？"}]}]}], "questions": None},
                  {"phase_no": 3, "name": "流程深挖", "layer_type": "deepdive", "title": "战略流程", "description": "深挖", "blocks": None, "questions": [{"text": "决策顺序？", "probes": [{"type": "追问", "text": "谁拍板？"}]}]},
-                 {"phase_no": 4, "name": "痛点唤醒", "layer_type": "awaken", "title": "挑战", "description": "唤醒", "blocks": None, "questions": [{"text": "品牌认知低？", "probes": [{"type": "引导思考", "text": "心智建设需多久？"}]}]},
+                 {"phase_no": 4, "name": "挑战与机会探索", "layer_type": "awaken", "title": "挑战", "description": "唤醒", "blocks": None, "questions": [{"text": "目前客户对品牌的反馈主要有哪些？", "probes": [{"type": "引导思考", "text": "心智建设需多久？"}]}]},
                  {"phase_no": 5, "name": "变革期望", "layer_type": "expectation", "title": "诉求", "description": "期望", "blocks": None, "questions": [{"text": "最想改变什么？", "probes": [{"type": "追问", "text": "前提？"}]}]},
              ],
              "expected_output": ["品牌定位确认"]},
@@ -69,7 +69,7 @@ def sample_render_input() -> dict:
                  {"phase_no": 1, "name": "暖场破冰", "layer_type": "intro", "title": "组织", "description": "破冰", "blocks": None, "questions": [{"text": "同一团队？", "probes": [{"type": "追问", "text": "多少人？"}]}]},
                  {"phase_no": 2, "name": "业务全景", "layer_type": "panorama", "title": "投放全貌", "description": "全景", "blocks": [{"area_num": 1, "area_title": "投放", "capability_ref": {"l2_id": "l2-03", "l2_name": "媒介投放", "l3_names": ["投放管理"]}, "questions": [{"text": "投放策略？", "probes": [{"type": "追问", "text": "ROI？"}]}]}, {"area_num": 2, "area_title": "线索", "capability_ref": {"l2_id": "l2-04", "l2_name": "线索管理", "l3_count": 4}, "questions": [{"text": "线索链路？", "probes": [{"type": "追问", "text": "转化率？"}]}]}], "questions": None},
                  {"phase_no": 3, "name": "流程深挖", "layer_type": "deepdive", "title": "转化细节", "description": "深挖", "blocks": None, "questions": [{"text": "首次跟进时长？", "probes": [{"type": "追问", "text": "标准？"}]}]},
-                 {"phase_no": 4, "name": "痛点唤醒", "layer_type": "awaken", "title": "挑战", "description": "唤醒", "blocks": None, "questions": [{"text": "CPL水平？", "probes": [{"type": "引导思考", "text": "漏斗断裂？"}]}]},
+                 {"phase_no": 4, "name": "挑战与机会探索", "layer_type": "awaken", "title": "挑战", "description": "唤醒", "blocks": None, "questions": [{"text": "CPL水平？", "probes": [{"type": "引导思考", "text": "哪些环节运行顺畅？"}]}]},
                  {"phase_no": 5, "name": "变革期望", "layer_type": "expectation", "title": "诉求", "description": "期望", "blocks": None, "questions": [{"text": "升级什么？", "probes": [{"type": "追问", "text": "前提？"}]}]},
              ],
              "expected_output": ["投放全景", "线索链路"]},
@@ -87,7 +87,7 @@ class TestRender(unittest.TestCase):
 
     def test_index_html_structure(self) -> None:
         ri = sample_render_input()
-        render_html_bundle(ri, self.out)
+        render_html_bundle(ri, self.out, audience="interviewer")
         html = (self.out / "index.html").read_text(encoding="utf-8")
         for token in ("class=\"cover\"", "项目背景", "访谈设计方法论", "class=\"toc-grid\"", "class=\"toc-item\"", "价值流 × 访谈主题映射", "class=\"doc-footer\""):
             self.assertIn(token, html)
@@ -95,7 +95,7 @@ class TestRender(unittest.TestCase):
 
     def test_guide_html_structure(self) -> None:
         ri = sample_render_input()
-        render_html_bundle(ri, self.out)
+        render_html_bundle(ri, self.out, audience="interviewer")
         html = (self.out / "01_品牌战略.html").read_text(encoding="utf-8")
         for token in ("class=\"header-bar\"", "class=\"interview-header\"", "class=\"interview-num\"", "tag tag-blue", "tag tag-teal", "class=\"meta-table\"", "class=\"output-box\"", "本场访谈预期输出"):
             self.assertIn(token, html)
@@ -105,11 +105,11 @@ class TestRender(unittest.TestCase):
 
     def test_docx_structure(self) -> None:
         ri = sample_render_input()
-        render_docx_bundle(ri, self.out)
+        render_docx_bundle(ri, self.out, audience="interviewer")
         doc = Document(self.out / "01_品牌战略.docx")
         texts = [p.text for p in doc.paragraphs if p.text.strip()]
         joined = "\n".join(texts)
-        for token in ("Interview 01", "● Phase 1 · 暖场破冰", "● Phase 4 · 痛点唤醒", "本场访谈预期输出"):
+        for token in ("访谈 01", "● Phase 1 · 暖场破冰", "● Phase 4 · 挑战与机会探索", "本场访谈预期输出"):
             self.assertIn(token, joined)
         self.assertGreaterEqual(len(doc.tables), 1)
         idx_doc = Document(self.out / "index.docx")
@@ -122,8 +122,8 @@ class TestRender(unittest.TestCase):
 
     def test_same_source_bundle(self) -> None:
         ri = sample_render_input()
-        render_html_bundle(ri, self.out)
-        render_docx_bundle(ri, self.out)
+        render_html_bundle(ri, self.out, audience="interviewer")
+        render_docx_bundle(ri, self.out, audience="interviewer")
         # HTML 与 docx 文件集一一对应（同源约束）
         html_nums = {p.name.split("_")[0] for p in self.out.glob("[0-9][0-9]_*.html")}
         docx_nums = {p.name.split("_")[0] for p in self.out.glob("[0-9][0-9]_*.docx")}

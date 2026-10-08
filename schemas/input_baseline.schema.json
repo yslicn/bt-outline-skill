@@ -79,16 +79,16 @@
     },
     "strategic_tensions": {
       "type": "array",
-      "description": "战略核心矛盾，3-7条，必须可溯源到输入材料",
-      "minItems": 3,
-      "maxItems": 7,
+      "description": "材料明确提出的战略取舍或待核实挑战；可为空，不凑数量",
       "items": {
         "type": "object",
         "required": ["id", "statement", "source_ref"],
         "properties": {
           "id": { "type": "string" },
           "statement": { "type": "string" },
-          "source_ref": { "type": "string", "description": "溯源：材料id或章节，如 strategy:materials/ref3#chapter2" }
+          "source_ref": { "type": "string", "description": "溯源：材料id或章节，如 strategy:materials/ref3#chapter2" },
+          "verification_status": { "enum": ["reported", "verified", "hypothesis"] },
+          "verification_note": { "type": "string" }
         }
       }
     },

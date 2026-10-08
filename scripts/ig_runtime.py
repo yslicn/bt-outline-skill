@@ -20,6 +20,7 @@ from typing import Any, Iterable
 
 
 SCHEMA_VERSION = "1.0"
+SKILL_VERSION = "v1.1"
 S00 = "stage_00_scope_confirmation"
 S01 = "stage_01_input_baseline"
 S02 = "stage_02_interview_planning"
@@ -262,11 +263,18 @@ def validate_stage01(data: dict[str, Any], requirement: dict[str, Any]) -> None:
     for s in data["stakeholders"]:
         require_keys(s, ["id", "name", "type", "role"], "stakeholder")
     tensions = data.get("strategic_tensions", [])
-    if not (3 <= len(tensions) <= 7):
-        raise ContractError(f"strategic_tensions 必须为3-7条，当前{len(tensions)}")
+    unique_ids(tensions, "strategic_tensions")
     for t in tensions:
         if not t.get("source_ref"):
             raise ContractError(f"strategic_tensions[{t.get('id')}] 缺少 source_ref（须溯源到输入材料）")
+        if "verification_status" in t:
+            if t["verification_status"] not in {"reported", "verified", "hypothesis"}:
+                raise ContractError("战略议题核实状态无效")
+            material_id, separator, locator = t["source_ref"].partition("#")
+            if material_id not in {m["id"] for m in requirement.get("materials", [])} or not separator or not locator:
+                raise ContractError("战略议题source_ref须引用已登记材料ID及具体位置")
+            if t["verification_status"] == "verified" and not t.get("verification_note"):
+                raise ContractError("已核实议题缺少verification_note")
     model = data.get("capability_model", {})
     if not model.get("root") or not isinstance(model.get("layers"), list) or not model["layers"]:
         raise ContractError("capability_model 必须包含 root 与非空 layers")
@@ -310,6 +318,12 @@ def _probe_type_ok(question: dict[str, Any], layer_type: str) -> bool:
 
 
 def validate_stage03(data: dict[str, Any], plan: dict[str, Any], baseline: dict[str, Any]) -> None:
+    policy = data.get("content_policy")
+    if policy not in {None, "neutral-v1"}:
+        raise ContractError("content_policy无效")
+    neutral = policy == "neutral-v1"
+    question_ids: set[str] = set()
+    premises = {t["id"] for t in baseline.get("strategic_tensions", [])}
     vs_ids, l2_ids, l3_ids = _l3_l2_sets(baseline)
     plan_ids = {iv["id"] for iv in plan["interviews"]}
     plan_nums = {iv["id"]: iv["num"] for iv in plan["interviews"]}
@@ -337,6 +351,20 @@ def validate_stage03(data: dict[str, Any], plan: dict[str, Any], baseline: dict[
             all_q = [q for b in blocks for q in b.get("questions", [])] + questions
             for q in all_q:
                 require_keys(q, ["text", "probes"], "question")
+                if neutral:
+                    if not q.get("id") or q["id"] in question_ids:
+                        raise ContractError("中立提纲每题须有唯一稳定id")
+                    question_ids.add(q["id"])
+                    if not q.get("vs_refs") or not q.get("capability_refs"):
+                        raise ContractError("中立提纲每题须同时有价值流和能力引用")
+                    for ref in q.get("premise_refs", []):
+                        if ref not in premises:
+                            raise ContractError(f"问题前提引用不存在: {ref}")
+                    for probe in q["probes"]:
+                        if probe.get("when") not in {"always", "confirmed", "denied", "unknown"}:
+                            raise ContractError("中立提纲probe须有合法when条件")
+                        if probe["when"] == "confirmed" and not probe.get("condition"):
+                            raise ContractError("confirmed追问须说明具体condition")
                 if not _probe_type_ok(q, layer_type):
                     raise ContractError(f"guide {guide['id']} P{phase['phase_no']} 存在引导词不符的问题（{layer_type} 层应为 {PROBE_TYPE_BY_LAYER[layer_type]}）")
                 if not q.get("vs_refs") and not q.get("capability_refs"):
@@ -447,7 +475,7 @@ def project_render_input(guide_full: dict[str, Any], baseline: dict[str, Any], r
         "client": requirement["client"],
         "transformation_theme": requirement["transformation_theme"],
         "subtitle": f"{requirement['transformation_theme']} — 访谈提纲总览",
-        "version": "v1.0",
+        "version": SKILL_VERSION,
         "date_text": _date_text(requirement),
         "basis_meta": {"vs_count": len(vs_codes), "l2_count": len(l2_by_id), "l3_count": l3_count_total, "interview_count": interview_count},
         "footer_text": f"{requirement['client']} {requirement['transformation_theme']} — 访谈提纲总览",
@@ -469,17 +497,17 @@ def project_render_input(guide_full: dict[str, Any], baseline: dict[str, Any], r
             ],
         },
         "background": [
-            f"本项目聚焦{requirement['client']}{requirement['transformation_theme']}。通过{_scope_text(requirement)}全链路访谈，系统性收集业务现状、流程痛点与变革诉求。",
+            f"本项目聚焦{requirement['client']}{requirement['transformation_theme']}。通过{_scope_text(requirement)}访谈，了解业务现状、有效机制、挑战与机会，以及保留与改进期望。",
             f"访谈提纲覆盖{_scope_text(requirement)}全业务域，对齐{_basis_text(len(vs_codes), len(l2_by_id), l3_count_total)}，通过{interview_count}场专题访谈开展信息采集。",
         ],
         "methodology": {
-            "progression": "每场访谈采用\"暖场破冰 → 业务全景 → 流程深挖 → 痛点唤醒 → 变革期望\"五步法，层层递进、由浅入深",
+            "progression": "暖场与职责了解 → 业务全景 → 运行机制与具体案例 → 挑战与机会探索 → 保留与改进期望；没有问题、不适用、未知与暂不调整均为有效信息",
             "layer_definitions": [
                 {"name": "破冰问题", "definition": "组织架构/人员规模/协同模式概览——建立信任，获取结构信息"},
                 {"name": "全景问题", "definition": "业务目标/核心流程/关键指标——让客户\"有话说\""},
-                {"name": "深挖问题", "definition": "沿协同链路追问细节——暴露流程断点和管理盲区"},
-                {"name": "唤醒问题", "definition": "行业对比/跨域类比/后果推演——让客户自己发现问题"},
-                {"name": "期望问题", "definition": "从痛点自然过渡到变革诉求——由客户主动提出改进方向"},
+                {"name": "案例问题", "definition": "了解实际流转、正常与例外处理、协作接口与信息使用"},
+                {"name": "探索问题", "definition": "核实挑战、机会、适用边界和其他解释；不预设问题存在"},
+                {"name": "期望问题", "definition": "了解保留、改进、条件与暂不调整的理由"},
             ],
             "capability_alignment": "每个问题标注所属价值流（VS）和业务能力域（L2/L3），确保信息收集与能力架构一一对应",
         },
@@ -563,9 +591,9 @@ def render_stage01(data: dict[str, Any]) -> str:
     lines.append("\n## 干系人")
     for s in data["stakeholders"]:
         lines.append(f"- {pipe(s['name'])}（{s['type']}）: {s['role']}")
-    lines.append("\n## 战略核心矛盾")
+    lines.append("\n## 战略关注议题（允许为空）")
     for t in data["strategic_tensions"]:
-        lines.append(f"- {pipe(t['statement'])}（来源: {pipe(t.get('source_ref', ''))}）")
+        lines.append(f"- {pipe(t['statement'])}（来源: {pipe(t.get('source_ref', ''))}；核实状态: {pipe(t.get('verification_status', 'reported'))}）")
     return "\n".join(lines) + "\n"
 
 
@@ -591,6 +619,7 @@ def render_stage02(data: dict[str, Any]) -> str:
 
 
 def render_stage03(data: dict[str, Any]) -> str:
+    from render_views import probe_text
     lines = ["# 访谈提纲全文（阶段03）\n"]
     for g in data["guides"]:
         lines.append(f"\n## {g['num']} {g['title']}")
@@ -605,13 +634,17 @@ def render_stage03(data: dict[str, Any]) -> str:
                 ref_text = f"（{cap.get('l2_name', '')}）" if cap.get("l2_name") else ""
                 lines.append(f"\n**{b['area_num']}. {b['area_title']}**{ref_text}")
                 for q in b.get("questions", []):
-                    lines.append(f"- {pipe(q['text'])}")
+                    lines.append(f"- [{pipe(q.get('id', 'legacy'))}] {pipe(q['text'])}")
+                    if q.get("interviewer_context"):
+                        lines.append(f"  - 访谈员提示: {pipe(q['interviewer_context'])}")
                     for p in q.get("probes", []):
-                        lines.append(f"  - {p['type']}: {pipe(p['text'])}")
+                        lines.append(f"  - {pipe(probe_text(p))}")
             for q in phase.get("questions") or []:
-                lines.append(f"- {pipe(q['text'])}")
+                lines.append(f"- [{pipe(q.get('id', 'legacy'))}] {pipe(q['text'])}")
+                if q.get("interviewer_context"):
+                    lines.append(f"  - 访谈员提示: {pipe(q['interviewer_context'])}")
                 for p in q.get("probes", []):
-                    lines.append(f"  - {p['type']}: {pipe(p['text'])}")
+                    lines.append(f"  - {pipe(probe_text(p))}")
         lines.append("\n**本场访谈预期输出**")
         for o in g["expected_output"]:
             lines.append(f"- {pipe(o)}")
@@ -657,6 +690,8 @@ def expected_release_paths(project: Path, manifest: dict[str, Any]) -> set[str]:
     for item in manifest.get("toc", []):
         paths.add(f"{item['num']}_{item['title']}.html")
         paths.add(f"{item['num']}_{item['title']}.docx")
+    if "interviewer" in manifest.get("audiences", []):
+        paths |= {"interviewer/" + p for p in paths if p != "render_input.json"}
     return paths
 
 
@@ -680,6 +715,8 @@ def write_candidate_bundle(project: Path, data: dict[str, Any], source_hash: str
 
     html_files = render_html_bundle(data, candidate_dir)
     docx_files = render_docx_bundle(data, candidate_dir)
+    html_files += render_html_bundle(data, candidate_dir / "interviewer", audience="interviewer")
+    docx_files += render_docx_bundle(data, candidate_dir / "interviewer", audience="interviewer")
 
     files: list[dict[str, str]] = []
     all_files = [relpath(project, render_input_path)] + [relpath(project, p) for p in html_files] + [relpath(project, p) for p in docx_files]
@@ -695,6 +732,7 @@ def write_candidate_bundle(project: Path, data: dict[str, Any], source_hash: str
         "render_input_sha256": sha256(render_input_path),
         "toc": data["toc"],
         "required_reviewers": REVIEWERS,
+        "audiences": ["client", "interviewer"],
         "files": files,
     }
     manifest_path = project / S04 / "output" / "candidate_manifest.json"
@@ -792,6 +830,54 @@ def cmd_submit(args: argparse.Namespace) -> None:
     submit_stage(project, state, args.stage)
 
 
+def question_content(q: dict[str, Any]) -> dict[str, Any]:
+    return {"text": q["text"], "probes": q.get("probes", []), "interviewer_context": q.get("interviewer_context", "")}
+
+
+def review_content_issues(project: Path, stage: str, role: str, decision: str, issues_file: str | None, digest: str) -> list[dict[str, Any]]:
+    """Keep issue closure across resubmissions; unchanged questions cannot be fixed."""
+    if stage != S03:
+        if issues_file:
+            raise ContractError("--issues-file目前用于阶段03逐题内容评审")
+        return []
+    guide = load_json(artifact_path(project, S03))
+    ledger_path = project / stage / "review" / f"issues_{role}.json"
+    prior = load_json(ledger_path).get("issues", []) if ledger_path.exists() else []
+    incoming = load_json(Path(issues_file)).get("issues", []) if issues_file else []
+    if guide.get("content_policy") == "neutral-v1" and decision == "REVISE" and not incoming:
+        raise ContractError("中立提纲REVISE须提供--issues-file逐题意见")
+    unique_ids([{ "id": item.get("issue_id") } for item in incoming], "review issues")
+    questions = {q.get("id"): q for g in guide["guides"] for p in g["phases"] for q in (p.get("questions") or []) + [q for b in p.get("blocks") or [] for q in b.get("questions", [])] if q.get("id")}
+    updated = {item["issue_id"]: item for item in prior}
+    for item in incoming:
+        require_keys(item, ["issue_id", "question_id", "status"], "review issue")
+        qid = item["question_id"]
+        if qid not in questions:
+            raise ContractError(f"评审问题ID不存在: {qid}")
+        current = question_content(questions[qid])
+        old = updated.get(item["issue_id"])
+        if decision == "REVISE":
+            require_keys(item, ["problem", "required_fix"], "REVISE issue")
+            if item["status"] != "open" or not item["problem"] or not item["required_fix"]:
+                raise ContractError("REVISE意见须为open并说明问题和修改要求")
+            updated[item["issue_id"]] = {**item, "before": current, "opened_sha256": digest}
+        else:
+            if not old or old["question_id"] != qid:
+                raise ContractError("关闭意见须引用同一问题的既有issue")
+            if item["status"] not in {"resolved", "not_applicable"} or not item.get("resolution_note"):
+                raise ContractError("关闭意见须注明resolved/not_applicable及理由")
+            if item["status"] == "resolved" and current == old["before"]:
+                raise ContractError("问题正文和probe未修改，不能标记已修复")
+            if item.get("after") != current:
+                raise ContractError("关闭意见after须匹配当前问题正文及probe")
+            updated[item["issue_id"]] = {**old, **item, "closed_sha256": digest}
+    if decision == "PASS" and any(i["status"] == "open" for i in updated.values()):
+        raise ContractError("仍有未关闭的逐题评审意见，不可PASS")
+    if incoming or prior:
+        atomic_json(ledger_path, {"review_target_sha256": digest, "issues": list(updated.values())})
+    return list(updated.values())
+
+
 def cmd_review(args: argparse.Namespace) -> None:
     project = Path(args.project).resolve()
     _, state = load_project(project)
@@ -801,12 +887,14 @@ def cmd_review(args: argparse.Namespace) -> None:
     if entry["status"] not in {"internal_review", "user_review"}:
         raise ContractError(f"当前状态不可评审: {entry['status']}")
     review_target_sha256 = verify_review_target(project, entry)
+    issues = review_content_issues(project, args.stage, args.role, args.decision, args.issues_file, review_target_sha256)
     entry["reviews"][args.role] = {
         "decision": args.decision,
         "artifact_sha256": entry["artifact_sha256"],
         "review_target_sha256": review_target_sha256,
         "reviewed_at": now(),
         "notes": args.notes,
+        "issues": issues,
     }
     review_path = project / args.stage / "review" / f"{args.role}_{review_target_sha256[:12]}.json"
     atomic_json(review_path, entry["reviews"][args.role])
@@ -978,6 +1066,7 @@ def parser() -> argparse.ArgumentParser:
     review.add_argument("--role", required=True, choices=REVIEWERS)
     review.add_argument("--decision", required=True, choices=["PASS", "REVISE"])
     review.add_argument("--notes", default="")
+    review.add_argument("--issues-file", help="阶段03逐题意见JSON，含issues数组")
 
     approve = sub.add_parser("approve")
     approve.add_argument("project")

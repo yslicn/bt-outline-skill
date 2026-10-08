@@ -70,7 +70,8 @@
         "artifact_sha256": { "type": "string" },
         "review_target_sha256": { "type": "string" },
         "reviewed_at": { "type": "string" },
-        "notes": { "type": "string" }
+        "notes": { "type": "string" },
+        "issues": { "type": "array", "items": { "type": "object" } }
       }
     }
   },

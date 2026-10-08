@@ -8,6 +8,10 @@
   "properties": {
     "schema_version": { "const": "1.0" },
     "stage_id": { "const": "stage_03_interview_drafting" },
+    "content_policy": {
+    "const": "neutral-v1",
+    "description": "新提纲启用稳定ID、条件追问和前提引用硬门；旧锁定数据兼容"
+  },
     "project_name": { "type": "string" },
     "plan_ref": {
       "type": "object",
@@ -45,6 +49,59 @@
     }
   },
   "$defs": {
+    "neutral_question": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/question"
+        },
+        {
+          "required": [
+            "id",
+            "vs_refs",
+            "capability_refs"
+          ],
+          "properties": {
+            "vs_refs": {
+              "minItems": 1
+            },
+            "capability_refs": {
+              "minItems": 1
+            },
+            "probes": {
+              "items": {
+                "required": [
+                  "when"
+                ],
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": {
+                        "when": {
+                          "const": "confirmed"
+                        }
+                      },
+                      "required": [
+                        "when"
+                      ]
+                    },
+                    "then": {
+                      "required": [
+                        "condition"
+                      ],
+                      "properties": {
+                        "condition": {
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
     "phase": {
       "type": "object",
       "required": ["phase_no", "name", "layer_type", "description"],
@@ -55,7 +112,7 @@
         "title": { "type": "string" },
         "description": { "type": "string" },
         "blocks": {
-          "type": "array",
+          "type": ["array", "null"],
           "description": "阶段2必填、阶段3可选；阶段1/4/5不填（直接列问题）",
           "items": {
             "type": "object",
@@ -78,7 +135,7 @@
           }
         },
         "questions": {
-          "type": "array",
+          "type": ["array", "null"],
           "items": { "$ref": "#/$defs/question" }
         }
       }
@@ -87,6 +144,9 @@
       "type": "object",
       "required": ["text", "probes"],
       "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "interviewer_context": { "type": "string" },
+        "premise_refs": { "type": "array", "items": { "type": "string" } },
         "text": { "type": "string" },
         "probes": {
           "type": "array",
@@ -95,7 +155,9 @@
             "required": ["type", "text"],
             "properties": {
               "type": { "enum": ["追问", "引导思考"], "description": "阶段4必须'引导思考'，阶段1/2/3/5必须'追问'" },
-              "text": { "type": "string" }
+              "text": { "type": "string" },
+              "when": { "enum": ["always", "confirmed", "denied", "unknown"] },
+              "condition": { "type": "string" }
             }
           }
         },
@@ -104,5 +166,46 @@
       }
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "content_policy"
+        ]
+      },
+      "then": {
+        "properties": {
+          "guides": {
+            "items": {
+              "properties": {
+                "phases": {
+                  "items": {
+                    "properties": {
+                      "questions": {
+                        "items": {
+                          "$ref": "#/$defs/neutral_question"
+                        }
+                      },
+                      "blocks": {
+                        "items": {
+                          "properties": {
+                            "questions": {
+                              "items": {
+                                "$ref": "#/$defs/neutral_question"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "additionalProperties": false
 }

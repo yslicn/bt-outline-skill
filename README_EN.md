@@ -210,3 +210,9 @@ The complete list is in `SKILL.md`. The four most important:
 Code is licensed under the [Apache License 2.0](LICENSE).
 
 Use is additionally constrained by [Usage Scope and Restrictions](#️-usage-scope-and-restrictions) above: this skill is limited to **designing interview outlines for business transformation projects**.
+
+## v1.1 (2026-10-08)
+
+Neutral information collection accepts effective existing practices, no issue, not applicable, unknown, and no change as valid outcomes. Strategic tensions may be empty. Use one spoken question and conditional probes; industry observations do not establish company facts. See `methodology/neutral_questioning.md`.
+
+Client files hide internal mappings and probes; the same JSON renders interviewer files under `interviewer/`. New guides use `content_policy=neutral-v1`; existing schema_version=1.0 artifacts remain compatible. Stage 03 revisions use `review --issues-file` to track question IDs and before/after question content. Tests do not replace semantic review.

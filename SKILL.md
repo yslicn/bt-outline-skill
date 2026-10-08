@@ -7,6 +7,12 @@ description: 变革项目访谈提纲生成器（BT=business transformation）�
 
 本 skill 将已实战验证过的"变革项目访谈提纲"生产方法固化为确定性流程：输入 5 类标准材料，经 4 个带用户确认门的阶段，输出 index + N 份访谈提纲的 HTML + docx 双格式。它只做**信息采集设计**（访谈提纲），不输出流程优化方案、系统架构、实施路线图或诊断结论。
 
+## 中立采集约束（v1.1）
+
+先读 `methodology/neutral_questioning.md`。五层结构不要求找出痛点；材料没有战略矛盾时允许空集合。行业参考不等于企业事实，否定、未知、有效做法与暂不变革均为有效信息。每题用稳定id和短主问，条件追问只在对应回答后选用。
+
+客户版默认隐藏内部编码和访谈员提示；同一render_input生成 `interviewer/` 中的访谈员版。阶段03修订用 `review --issues-file` 逐题登记和复核，不能只改页眉后关闭正文意见。旧schema_version=1.0保持兼容；新提纲填content_policy=neutral-v1以启用id、分支和前提引用硬门，旧锁定成果不静默改写。
+
 ## 启动硬门：先确认输入材料与交付格式
 
 首次启用时，必须先向用户确认 5 类输入材料是否齐全，并确认交付格式；未确认不得 `init`：
@@ -33,7 +39,7 @@ python3 scripts/ig_runtime.py init <project_dir> \
 | 阶段 | 主导角色 | 核心确认点 | 是否必做 |
 |---|---|---|---|
 | 00 启动硬门 | Orchestrator | 5 类输入材料齐全 + HTML/docx 双格式 + 项目元信息 | 必做（init 前置） |
-| 01 解析输入 | Architect | 信息基底：价值流/能力框架/干系人/战略核心矛盾 | 必做 |
+| 01 解析输入 | Architect | 信息基底：价值流/能力框架/干系人/战略关注议题（含待核实取舍） | 必做 |
 | 02 规划 | Interview Drafter | N 份提纲 + 每份方向 + 预期信息（**方向门，可迭代**） | 必做 |
 | 03 生成 | Interview Drafter | 每份五层提纲全文 + 两级能力标注 | 必做 |
 | 04 汇编渲染发布 | Orchestrator + Python | index + N 份 HTML+docx 候选交付包 | 必做 |
@@ -74,7 +80,7 @@ python3 scripts/ig_runtime.py init <project_dir> \
 
 ## 正式数据源与交付
 
-阶段 JSON 是各阶段唯一事实源。阶段04 编译出正式交付包：
+阶段 JSON 是各阶段唯一结构化数据源（记录材料陈述与核实状态，不等于事实已验证）。阶段04 编译出正式交付包：
 
 ```text
 deliverables/render_input.json
@@ -83,6 +89,11 @@ deliverables/NN_<标题>.html          # N 份，编号 01..NN
 deliverables/shared-style.css
 deliverables/index.docx
 deliverables/NN_<标题>.docx
+deliverables/interviewer/index.html
+deliverables/interviewer/NN_<标题>.html
+deliverables/interviewer/shared-style.css
+deliverables/interviewer/index.docx
+deliverables/interviewer/NN_<标题>.docx
 deliverables/quality_report.json
 deliverables/release_manifest.json
 ```
@@ -100,6 +111,7 @@ deliverables/release_manifest.json
 
 ## 方法论与规则来源
 
+- 中立提问与现场可用性：`methodology/neutral_questioning.md`
 - 五层递进结构：`methodology/five_layer_progression.md`
 - 问题分层与引导词：`methodology/question_layer_design.md`
 - 能力域两级对齐：`methodology/capability_alignment.md`
@@ -119,12 +131,14 @@ Agent、Stage 和评审清单只引用这些规则，不复制另一套阈值或
 5. 内容不得编造：提纲问题必须基于输入材料（战略报告/价值流/能力框架/干系人）；无法支撑处标注 data gap，不得凭空虚构业务事实或访谈对象。
 6. 拆分逻辑必须自洽：访谈拆分必须有明确互斥维度（M1 教训：GTM vs 营销推广、渠道 vs 销售是两套能力体系），不得"先定数量再凑理由"；REVISE 时记录理由。
 7. 未确认不发布：未通过双评审 PASS + 用户确认的候选包不得 `release`，也不得对外交付（含共享目录/GitHub）。
-8. 敏感问题红线：不写入让被访者不适或泄露顾问内部判断的问题；唤醒层一律用"引导思考"。
+8. 敏感问题红线：不写入让被访者不适或泄露顾问内部判断的问题；P4引导词用"引导思考"；不得用标签替代前提审查，全文及probe均须允许否定回答。
 9. 五层结构不可裁剪：任何一份提纲必须含 P1-P5（用户明确豁免并记录例外除外）。
 10. 不输出范围外内容：本 skill 只做信息采集设计，不输出流程优化方案、系统架构、实施路线图、KPI 词典或诊断结论。
 11. 渲染与内容同源：HTML 与 docx 必须同源（同一 `render_input.json`），不得分别手工编写。
 12. 模型路由必须记录：`runs[]` 记录实际模型，不得因换模型降低质量门。
 
 ## 版本记录
+
+- v1.1（2026-10-08）：中立采集规则、短主问与条件追问、取消战略矛盾最低数量、客户/访谈员同源双视图、逐题修订证据门。
 
 - v1.0（2026-08-10）：首个版本。从汽车行业流程变革项目实战固化 4 阶段流程 + HTML/docx 渲染 + 确定性 runtime。

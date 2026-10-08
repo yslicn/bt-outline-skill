@@ -2,6 +2,12 @@
 
 HTML 与 docx 由 `render_input.json` 确定性渲染。CSS 复用 `assets/shared-style.css`（IBM Design System）。
 
+## v1.1视图（覆盖下文旧展示规格）
+
+根目录客户版不显示VS/L2/L3、能力计数、能力域覆盖、Phase编码、内部上下文与probe，保留业务主题、短主问和必要说明。总览用自然业务主题代替内部映射编码。
+
+interviewer/访谈员版保留下文的内部映射和追问，并呈现interviewer_context、probe.when/condition。两版主问一致，共享render_views.py投影，不修改源JSON。直接运行渲染脚本可用--audience client|interviewer，默认client。runtime自动生成两版并绑定全部文件hash。JSON与interviewer/属于内部工作数据。
+
 ## index.html 结构（顺序固定）
 
 1. cover：eyebrow → h1（含 <br> 换行）→ divider → subtitle（含 <br>）→ meta-line × N

@@ -8,6 +8,7 @@
   "properties": {
     "schema_version": { "const": "1.0" },
     "stage_id": { "const": "stage_04_rendering_release" },
+    "audience": { "enum": ["client", "interviewer"] },
     "project_name": { "type": "string" },
     "source_guide_full_sha256": { "type": "string", "description": "绑定的阶段03正式JSON sha256" },
     "meta": {
@@ -127,21 +128,23 @@
         "layer_type": { "enum": ["intro", "panorama", "deepdive", "awaken", "expectation"] },
         "title": { "type": "string" },
         "description": { "type": "string" },
-        "blocks": { "type": "array", "items": { "type": "object" } },
-        "questions": { "type": "array", "items": { "$ref": "#/$defs/question" } }
+        "blocks": { "type": ["array", "null"], "items": { "type": "object" } },
+        "questions": { "type": ["array", "null"], "items": { "$ref": "#/$defs/question" } }
       }
     },
     "question": {
       "type": "object",
       "required": ["text", "probes"],
       "properties": {
+        "id": { "type": "string" },
+        "interviewer_context": { "type": "string" },
         "text": { "type": "string" },
         "probes": {
           "type": "array",
           "items": {
             "type": "object",
             "required": ["type", "text"],
-            "properties": { "type": { "enum": ["追问", "引导思考"] }, "text": { "type": "string" } }
+            "properties": { "type": { "enum": ["追问", "引导思考"] }, "text": { "type": "string" }, "when": { "enum": ["always", "confirmed", "denied", "unknown"] }, "condition": { "type": "string" } }
           }
         }
       }

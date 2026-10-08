@@ -8,6 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+from render_views import prepare_view, probe_text
 
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
@@ -108,34 +109,41 @@ def _questions(doc: Any, questions: list[dict[str, Any]]) -> None:
         p.paragraph_format.left_indent = Pt(12)
         _write(p, "Q ", bold=True, size=9.5, color=BLUE90)
         _write(p, q["text"], size=9.5)
+        if q.get("interviewer_context"):
+            _para(doc, "访谈员提示：" + q["interviewer_context"], size=9, color="6F6F6F")
         for probe in q.get("probes", []):
             p2 = doc.add_paragraph()
             p2.paragraph_format.space_after = Pt(2)
             p2.paragraph_format.left_indent = Pt(24)
             _write(p2, "↳ ", bold=True, size=9, color="6F6F6F")
-            label = f'{probe["type"]}：'
-            text = probe["text"] if probe["text"].startswith(label) else label + probe["text"]
+            text = probe_text(probe)
             _write(p2, text, size=9, color="6F6F6F")
 
 
 def render_guide_docx(doc: Any, guide: dict[str, Any], ri: dict[str, Any]) -> None:
     meta = ri["meta"]
+    internal = ri.get("audience") == "interviewer"
     bar = _plain_table(doc, 1, 1)
     _cell(bar.rows[0].cells[0], f'{meta["client"]} {meta["transformation_theme"]} · 访谈提纲（{guide["num"]} {guide["title"]}）', bold=True)
-    _para(doc, f'Interview {guide["num"]}', bold=True, size=10, color="0F62FE", space_after=1)
+    _para(doc, f'访谈 {guide["num"]}', bold=True, size=10, color="0F62FE", space_after=1)
     _para(doc, guide["title"], bold=True, size=15, color=BLUE90, space_after=3)
     tags = "  ".join(guide.get("vs_tags", [])) + ("  |  " + guide["layer_tag"] if guide.get("layer_tag") else "")
-    _para(doc, tags, size=8.5, color="6F6F6F", space_after=6)
+    if tags:
+        _para(doc, tags, size=8.5, color="6F6F6F", space_after=6)
 
-    mt = _plain_table(doc, 3, 2)
+    mt = _plain_table(doc, 3 if internal else 2, 2)
     m = guide["meta"]
-    for row, (k, v) in enumerate((("访谈对象", m["target_audience"]), ("访谈时长", m["duration"]), ("能力域覆盖", m["capability_coverage_summary"]))):
+    rows = [("访谈对象", m["target_audience"]), ("访谈时长", m["duration"])]
+    if internal:
+        rows.append(("能力域覆盖", m["capability_coverage_summary"]))
+    for row, (k, v) in enumerate(rows):
         _cell(mt.rows[row].cells[0], k, header=True)
         _cell(mt.rows[row].cells[1], v)
 
     for phase in guide["phases"]:
         color = PHASE_COLOR[phase["layer_type"]]
-        _para(doc, f"● Phase {phase['phase_no']} · {phase['name']}", bold=True, size=11, color=color, space_after=1)
+        phase_label = f"● Phase {phase['phase_no']} · {phase['name']}" if internal else f"● {phase['name']}"
+        _para(doc, phase_label, bold=True, size=11, color=color, space_after=1)
         if phase.get("title"):
             _para(doc, phase["title"], bold=True, size=10.5, color=BLUE90, space_after=1)
         if phase.get("description"):
@@ -188,7 +196,8 @@ def render_index_docx(doc: Any, ri: dict[str, Any]) -> None:
         p.paragraph_format.space_after = Pt(2)
         _write(p, f"- {d['name']}：", size=9.5, bold=True)
         _write(p, d["definition"], size=9.5)
-    _para(doc, f"能力域对齐：{ri['methodology']['capability_alignment']}", size=9.5, space_after=6)
+    alignment_label = "能力域对齐" if ri.get("audience") == "interviewer" else "业务主题覆盖"
+    _para(doc, f"{alignment_label}：{ri['methodology']['capability_alignment']}", size=9.5, space_after=6)
 
     _para(doc, "访谈提纲清单", bold=True, size=13, color=BLUE90, space_after=3)
     toc_tbl = _plain_table(doc, len(ri["toc"]) + 1, 4)
@@ -218,10 +227,12 @@ def render_index_docx(doc: Any, ri: dict[str, Any]) -> None:
 
     _para(doc, "", size=6, space_after=4)
     _para(doc, f'{meta["client"]} {meta["transformation_theme"]} — 访谈提纲总览', bold=True, size=10, color=BLUE90, space_after=1)
-    _para(doc, f'版本 {meta["version"]}  |  {meta["date_text"]}  |  内部工作文件', size=8.5, color="6F6F6F")
+    usage_label = "内部工作文件" if ri.get("audience") == "interviewer" else "访谈提纲"
+    _para(doc, f'版本 {meta["version"]}  |  {meta["date_text"]}  |  {usage_label}', size=8.5, color="6F6F6F")
 
 
-def render_docx_bundle(ri: dict[str, Any], out_dir: Path) -> list[Path]:
+def render_docx_bundle(ri: dict[str, Any], out_dir: Path, *, audience: str = "client") -> list[Path]:
+    ri = prepare_view(ri, audience)
     out_dir.mkdir(parents=True, exist_ok=True)
     paths: list[Path] = []
     index_doc = Document()
@@ -242,9 +253,10 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("render_input")
     parser.add_argument("out_dir")
+    parser.add_argument("--audience", choices=["client", "interviewer"], default="client")
     args = parser.parse_args()
     ri = json.loads(Path(args.render_input).read_text(encoding="utf-8"))
-    render_docx_bundle(ri, Path(args.out_dir))
+    render_docx_bundle(ri, Path(args.out_dir), audience=args.audience)
     print(f"docx bundle written to {args.out_dir}")
     return 0
 

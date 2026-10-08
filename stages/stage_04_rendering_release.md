@@ -9,3 +9,5 @@
   - Architect 门：渲染与内容同源、五层结构在 HTML/docx 完整呈现、能力映射正确
   - 业务专家门：渲染内容与阶段03一致、无排版导致的信息丢失
   - 用户门：确认候选交付包后 `approve` → `release` 原子发布到 `deliverables/`
+
+- v1.1内容门：遵循 `methodology/neutral_questioning.md`；输入判断保留核实状态，不把行业现象升级为企业事实。允许无问题、否定、未知与保留现状；主问单点、追问按条件；逐题修订须检查正文和probe确实改变。

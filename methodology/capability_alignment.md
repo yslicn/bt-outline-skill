@@ -23,3 +23,7 @@ P2/P3 的每个 discussion-block 挂 `capability-ref`：
 - 每个问题 `vs_refs` / `capability_refs` 引用的 id 必须存在于阶段01基底（`value_streams` / `capability_model` 的 L2/L3）。
 - 场级 tag 计数与块级引用去重后的结果必须一致（Architect 门核对无漂移）。
 - 引用不存在的 id = 机器校验拒绝。
+
+## 双视图
+
+以上标注保留在JSON与访谈员版；客户版默认隐藏VS/L2/L3、计数和能力域映射，使用自然业务标题。映射只证明覆盖，不能证明客户存在该团队或采用该机制。
