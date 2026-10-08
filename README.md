@@ -216,3 +216,7 @@ tests/                        # runtime 与 render 离线测试
 改为中立采集：无问题、不适用、未知及现有做法有效均为有效信息；战略取舍/待核实挑战可为空，不凑数量；主问只问一件事，追问按回答选用。新增 `methodology/neutral_questioning.md`。
 
 默认客户版隐藏内部映射和追问；同一JSON生成 `interviewer/` 下的访谈员版。新提纲填 `content_policy=neutral-v1`（旧schema_version=1.0兼容）。阶段03内容返工使用 `review --issues-file`，记录问题ID、修改前后主问与probe并逐项复核。代码测试不替代独立语义评审。
+
+## v1.2（2026-10-08）
+
+保留中立采集，同时恢复业务颗粒度。主问描述对象与情境，客户版显示context（业务说明）与answer_hints（开放式回答维度），允许术语中文解释、枚举和中立讨论锚点。隐藏的仅是顾问内部判断与条件分支，不能隐藏回答所需信息。修订after由runtime自动提取；HTML脚本可直接运行，VS矩阵沿用基底实际ID。

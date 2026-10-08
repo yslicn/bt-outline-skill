@@ -20,7 +20,7 @@ from typing import Any, Iterable
 
 
 SCHEMA_VERSION = "1.0"
-SKILL_VERSION = "v1.1"
+SKILL_VERSION = "v1.2"
 S00 = "stage_00_scope_confirmation"
 S01 = "stage_01_input_baseline"
 S02 = "stage_02_interview_planning"
@@ -351,6 +351,10 @@ def validate_stage03(data: dict[str, Any], plan: dict[str, Any], baseline: dict[
             all_q = [q for b in blocks for q in b.get("questions", [])] + questions
             for q in all_q:
                 require_keys(q, ["text", "probes"], "question")
+                if "context" in q and not isinstance(q["context"], str):
+                    raise ContractError("question.context须为字符串")
+                if "answer_hints" in q and (not isinstance(q["answer_hints"], list) or any(not isinstance(hint, str) or not hint.strip() for hint in q["answer_hints"])):
+                    raise ContractError("question.answer_hints须为非空字符串数组")
                 if neutral:
                     if not q.get("id") or q["id"] in question_ids:
                         raise ContractError("中立提纲每题须有唯一稳定id")
@@ -457,7 +461,7 @@ def project_render_input(guide_full: dict[str, Any], baseline: dict[str, Any], r
             "phases": g["phases"], "expected_output": g["expected_output"],
         })
 
-    vs_codes = [f"VS{i+1}" for i in range(len(baseline["value_streams"]))]
+    vs_codes = [v["id"].upper() for v in baseline["value_streams"]]
     vs_short_names = [v["short_name"] for v in baseline["value_streams"]]
     vs_index = {v["id"]: i for i, v in enumerate(baseline["value_streams"])}
     matrix_rows: list[dict[str, Any]] = []
@@ -637,12 +641,20 @@ def render_stage03(data: dict[str, Any]) -> str:
                     lines.append(f"- [{pipe(q.get('id', 'legacy'))}] {pipe(q['text'])}")
                     if q.get("interviewer_context"):
                         lines.append(f"  - 访谈员提示: {pipe(q['interviewer_context'])}")
+                    if q.get("context"):
+                        lines.append(f"  - 说明: {pipe(q['context'])}")
+                    for hint in q.get("answer_hints", []):
+                        lines.append(f"  - 回答参考: {pipe(hint)}")
                     for p in q.get("probes", []):
                         lines.append(f"  - {pipe(probe_text(p))}")
             for q in phase.get("questions") or []:
                 lines.append(f"- [{pipe(q.get('id', 'legacy'))}] {pipe(q['text'])}")
                 if q.get("interviewer_context"):
                     lines.append(f"  - 访谈员提示: {pipe(q['interviewer_context'])}")
+                if q.get("context"):
+                    lines.append(f"  - 说明: {pipe(q['context'])}")
+                for hint in q.get("answer_hints", []):
+                    lines.append(f"  - 回答参考: {pipe(hint)}")
                 for p in q.get("probes", []):
                     lines.append(f"  - {pipe(probe_text(p))}")
         lines.append("\n**本场访谈预期输出**")
@@ -831,7 +843,11 @@ def cmd_submit(args: argparse.Namespace) -> None:
 
 
 def question_content(q: dict[str, Any]) -> dict[str, Any]:
-    return {"text": q["text"], "probes": q.get("probes", []), "interviewer_context": q.get("interviewer_context", "")}
+    content = {"text": q["text"], "probes": q.get("probes", []), "interviewer_context": q.get("interviewer_context", "")}
+    for field in ("context", "answer_hints"):
+        if field in q:
+            content[field] = q[field]
+    return content
 
 
 def review_content_issues(project: Path, stage: str, role: str, decision: str, issues_file: str | None, digest: str) -> list[dict[str, Any]]:
@@ -868,9 +884,9 @@ def review_content_issues(project: Path, stage: str, role: str, decision: str, i
                 raise ContractError("关闭意见须注明resolved/not_applicable及理由")
             if item["status"] == "resolved" and current == old["before"]:
                 raise ContractError("问题正文和probe未修改，不能标记已修复")
-            if item.get("after") != current:
+            if "after" in item and item["after"] != current:
                 raise ContractError("关闭意见after须匹配当前问题正文及probe")
-            updated[item["issue_id"]] = {**old, **item, "closed_sha256": digest}
+            updated[item["issue_id"]] = {**old, **item, "after": current, "closed_sha256": digest}
     if decision == "PASS" and any(i["status"] == "open" for i in updated.values()):
         raise ContractError("仍有未关闭的逐题评审意见，不可PASS")
     if incoming or prior:

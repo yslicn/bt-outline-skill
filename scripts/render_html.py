@@ -6,6 +6,7 @@ import argparse
 import html
 import json
 import shutil
+import sys
 from pathlib import Path
 from typing import Any
 from render_views import prepare_view, probe_text
@@ -29,6 +30,10 @@ def render_questions(questions: list[dict[str, Any]]) -> str:
     items: list[str] = []
     for q in questions:
         li = f"      <li>{esc(q['text'])}"
+        if q.get("context"):
+            li += f'\n        <span class="probe">说明：{esc(q["context"])}</span>'
+        for hint in q.get("answer_hints", []):
+            li += f'\n        <span class="probe">回答参考：{esc(hint)}</span>'
         if q.get("interviewer_context"):
             li += f'\n        <span class="probe">访谈员提示：{esc(q["interviewer_context"])}</span>'
         for probe in q.get("probes", []):

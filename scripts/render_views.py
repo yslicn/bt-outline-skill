@@ -38,6 +38,7 @@ def prepare_view(source: dict[str, Any], audience: str) -> dict[str, Any]:
                 block.pop("capability_ref", None)
             questions = (phase.get("questions") or []) + [q for b in phase.get("blocks") or [] for q in b.get("questions", [])]
             for question in questions:
+                # Keep public context and answer_hints; only internal prompts disappear.
                 question["probes"] = []
                 question.pop("interviewer_context", None)
     return ri

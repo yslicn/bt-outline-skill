@@ -4,7 +4,7 @@ HTML 与 docx 由 `render_input.json` 确定性渲染。CSS 复用 `assets/share
 
 ## v1.1视图（覆盖下文旧展示规格）
 
-根目录客户版不显示VS/L2/L3、能力计数、能力域覆盖、Phase编码、内部上下文与probe，保留业务主题、短主问和必要说明。总览用自然业务主题代替内部映射编码。
+根目录客户版不显示VS/L2/L3、能力计数、能力域覆盖、Phase编码、内部上下文与probe，保留业务主题、完整主问以及可见context/answer_hints，不把回答所需的说明作为内部信息删除。总览用自然业务主题代替内部映射编码。
 
 interviewer/访谈员版保留下文的内部映射和追问，并呈现interviewer_context、probe.when/condition。两版主问一致，共享render_views.py投影，不修改源JSON。直接运行渲染脚本可用--audience client|interviewer，默认client。runtime自动生成两版并绑定全部文件hash。JSON与interviewer/属于内部工作数据。
 
@@ -47,3 +47,7 @@ interviewer/访谈员版保留下文的内部映射和追问，并呈现intervie
 
 - cover/单场 footer 的版本、日期来自 `render_input.meta`。
 - HTML 与 docx 均内嵌/绑定 `source_guide_full_sha256`（机器门校验同源）。
+
+## v1.2回答信息保真
+
+question.context与answer_hints为客户可见数据，HTML/docx均呈现为说明和回答参考；interviewer_context与probe为访谈员数据。客户版需自足可答，不能仅靠访谈员版恢复颗粒度。可见说明允许业务场景、中文术语括注、同一信息目标的枚举；顾问假设与条件指令不公开。两视图的主问、context、answer_hints应逐项一致。

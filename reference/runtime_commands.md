@@ -59,8 +59,8 @@ python3 scripts/ig_runtime.py review <project> --stage stage_03_interview_drafti
 {"issues":[{"issue_id":"neutral-01","question_id":"iv-1-p4-q1","status":"resolved","resolution_note":"确认前提后才问影响；否定时采集有效做法","after":{"text":"目前相关业务通常怎样安排？","probes":[{"type":"引导思考","text":"哪些做法运行有效？","when":"denied"}],"interviewer_context":""}}]}
 ```
 
-after须与当前问题的text/probes/interviewer_context完全一致。before由runtime从原问题记录。正文与probe未变时不能标resolved；不适用可填not_applicable并解释，由独立评审者判断。未关闭issue不能PASS。仅修改元信息、页眉页脚不算正文修复。
+after可省略，由runtime从当前问题提取并保留差异证据；若提供，须与当前text/probes/interviewer_context及已存在的context/answer_hints完全一致。before由runtime从原问题记录。正文与probe未变时不能标resolved；不适用可填not_applicable并解释，由独立评审者判断。未关闭issue不能PASS。仅修改元信息、页眉页脚不算正文修复。
 
 ## v1.1 同源双视图
 
-runtime render自动生成根目录客户版与interviewer/访谈员版；全部文件纳入同一hash清单。直接运行render_html.py/render_docx.py时可加--audience client|interviewer，默认client。客户版隐藏内部映射、Phase编码、内部上下文与probe；内部版保留条件提示。分享客户文件时只使用客户HTML/docx，JSON和interviewer/为内部数据。
+runtime render自动生成根目录客户版与interviewer/访谈员版；全部文件纳入同一hash清单。直接运行render_html.py/render_docx.py时可加--audience client|interviewer，默认client。客户版保留完整主问、context/answer_hints，隐藏内部映射、Phase编码、顾问判断与条件probe；内部版另保留条件提示。分享客户文件时只使用客户HTML/docx，JSON和interviewer/为内部数据。

@@ -90,6 +90,44 @@ class TestNeutralContracts(BTOutlineTestCase):
         for token in ["VS1", "L2", "L3", "能力域", "内部工作文件"]:
             self.assertNotIn(token, (client / "index.html").read_text())
 
+    def test_public_context_and_answer_dimensions_survive_both_views(self):
+        ri = sample_render_input()
+        q = ri["guides"][0]["phases"][3]["questions"][0]
+        q.update(context="以近期一笔订单的交期答复为例。", answer_hints=["可结合库存、已排任务与物料到位情况说明。"], interviewer_context="内部待核实判断")
+        for audience in ["client", "interviewer"]:
+            directory = self.ws / audience
+            render_html_bundle(ri, directory, audience=audience)
+            render_docx_bundle(ri, directory, audience=audience)
+            html = (directory / "01_品牌战略.html").read_text()
+            doc = Document(directory / "01_品牌战略.docx")
+            text = "\n".join(p.text for p in doc.paragraphs)
+            for value in [q["context"], *q["answer_hints"]]:
+                self.assertIn(value, html)
+                self.assertIn(value, text)
+            if audience == "client":
+                self.assertNotIn(q["interviewer_context"], html)
+                self.assertNotIn(q["interviewer_context"], text)
+
+    def test_source_vs_ids_with_gaps_are_not_renumbered(self):
+        baseline = self.baseline()
+        baseline["value_streams"][3]["id"] = "vs7"
+        guides = self.guide_full()
+        for g in guides["guides"]:
+            for p in g["phases"]:
+                for q in (p.get("questions") or []) + [q for b in p.get("blocks") or [] for q in b["questions"]]:
+                    q["vs_refs"] = ["vs7" if ref == "vs4" else ref for ref in q["vs_refs"]]
+        req = self.load_json("requirement.json")
+        projected = runtime.project_render_input(guides, baseline, req, "hash")
+        self.assertEqual(projected["vs_mapping_matrix"]["vs_codes"], ["VS1", "VS2", "VS3", "VS7"])
+
+    def test_html_script_entry_point(self):
+        import subprocess
+        root = Path(__file__).resolve().parent.parent
+        self.write_json("render_input.json", sample_render_input())
+        result = subprocess.run([sys.executable, str(root / "scripts/render_html.py"), str(self.ws / "render_input.json"), str(self.ws / "html")], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue((self.ws / "html/index.html").exists())
+
 
 class TestRevisionClosure(BTOutlineTestCase):
     def open_issue(self):
@@ -133,4 +171,17 @@ class TestRevisionClosure(BTOutlineTestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         ledger = self.load_json(runtime.S03 + "/review/issues_business_expert.json")
         self.assertEqual(ledger["issues"][0]["before"], runtime.question_content(question))
+        self.assertEqual(ledger["issues"][0]["after"], runtime.question_content(changed))
+
+    def test_closure_can_capture_visible_hint_change_without_retyping_after(self):
+        q = self.open_issue()
+        data = self.load_json(runtime.ARTIFACTS[runtime.S03])
+        changed = data["guides"][0]["phases"][3]["questions"][0]
+        changed["answer_hints"] = ["可介绍现有做法在哪些订单情形下运行有效。"]
+        self.write_json(runtime.ARTIFACTS[runtime.S03], data)
+        self.assertEqual(run("submit", str(self.ws), "--stage", runtime.S03).returncode, 0)
+        self.write_json("closure.json", {"issues": [{"issue_id": "neutral-01", "question_id": q["id"], "status": "resolved", "resolution_note": "补充客户可见的有效做法回答范围"}]})
+        result = run("review", str(self.ws), "--stage", runtime.S03, "--role", "business_expert", "--decision", "PASS", "--issues-file", str(self.ws / "closure.json"))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        ledger = self.load_json(runtime.S03 + "/review/issues_business_expert.json")
         self.assertEqual(ledger["issues"][0]["after"], runtime.question_content(changed))

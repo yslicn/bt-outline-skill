@@ -146,6 +146,8 @@
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "interviewer_context": { "type": "string" },
+        "context": { "type": "string", "description": "客户可见的中立业务情境和必要说明" },
+        "answer_hints": { "type": "array", "items": { "type": "string", "minLength": 1 }, "description": "客户可见的开放式回答范围或例子，不是强制答案" },
         "premise_refs": { "type": "array", "items": { "type": "string" } },
         "text": { "type": "string" },
         "probes": {

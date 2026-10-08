@@ -216,3 +216,7 @@ Use is additionally constrained by [Usage Scope and Restrictions](#️-usage-sco
 Neutral information collection accepts effective existing practices, no issue, not applicable, unknown, and no change as valid outcomes. Strategic tensions may be empty. Use one spoken question and conditional probes; industry observations do not establish company facts. See `methodology/neutral_questioning.md`.
 
 Client files hide internal mappings and probes; the same JSON renders interviewer files under `interviewer/`. New guides use `content_policy=neutral-v1`; existing schema_version=1.0 artifacts remain compatible. Stage 03 revisions use `review --issues-file` to track question IDs and before/after question content. Tests do not replace semantic review.
+
+## v1.2 (2026-10-08)
+
+Preserve business specificity alongside neutrality. Client documents show the complete question, public context, and open-ended answer_hints; terminology explanations, answer dimensions, and neutral discussion anchors are allowed. Internal hypotheses and conditional probes remain private. Revision after snapshots can be captured automatically. Fix the HTML CLI entry point and preserve actual value-stream IDs when numbering has gaps.

@@ -43,4 +43,4 @@ requirement.json ──(scope_confirmed)──▶ input_baseline.json
 
 根目录HTML/docx为客户版，interviewer/为访谈员版，两版从同一render_input投影，全部文件进入candidate_manifest并绑定hash。客户版隐藏内部字段，不修改主问。
 
-阶段03逐题意见保存在review/issues_<role>.json，重提交不清空未关闭issue。REVISE绑定问题ID与修改前正文/probe，PASS核对当前after；只有元信息改动不能标记resolved。不适用关闭须有解释，由独立评审者承担判断。格式见runtime_commands.md。
+阶段03逐题意见保存在review/issues_<role>.json，重提交不清空未关闭issue。REVISE绑定问题ID与修改前正文/probe，PASS由runtime提取并核对当前after（含可见说明与回答提示）；只有元信息改动不能标记resolved。不适用关闭须有解释，由独立评审者承担判断。格式见runtime_commands.md。

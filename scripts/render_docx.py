@@ -109,6 +109,10 @@ def _questions(doc: Any, questions: list[dict[str, Any]]) -> None:
         p.paragraph_format.left_indent = Pt(12)
         _write(p, "Q ", bold=True, size=9.5, color=BLUE90)
         _write(p, q["text"], size=9.5)
+        if q.get("context"):
+            _para(doc, "说明：" + q["context"], size=9, color="6F6F6F")
+        for hint in q.get("answer_hints", []):
+            _para(doc, "回答参考：" + hint, size=9, color="6F6F6F")
         if q.get("interviewer_context"):
             _para(doc, "访谈员提示：" + q["interviewer_context"], size=9, color="6F6F6F")
         for probe in q.get("probes", []):

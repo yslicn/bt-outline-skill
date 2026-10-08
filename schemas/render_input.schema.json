@@ -138,6 +138,8 @@
       "properties": {
         "id": { "type": "string" },
         "interviewer_context": { "type": "string" },
+        "context": { "type": "string" },
+        "answer_hints": { "type": "array", "items": { "type": "string", "minLength": 1 } },
         "text": { "type": "string" },
         "probes": {
           "type": "array",
