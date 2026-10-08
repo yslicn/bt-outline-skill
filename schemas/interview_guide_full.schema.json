@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude.skills/generate-bt-outline/interview_guide_full.schema.json",
+  "title": "InterviewGuideFull",
+  "description": "阶段03产物：每份访谈提纲五层递进全文 + 两级能力标注 + 本场预期输出",
+  "type": "object",
+  "required": ["schema_version", "stage_id", "project_name", "plan_ref", "guides"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "stage_id": { "const": "stage_03_interview_drafting" },
+    "project_name": { "type": "string" },
+    "plan_ref": {
+      "type": "object",
+      "required": ["plan_path", "plan_sha256"],
+      "properties": { "plan_path": { "type": "string" }, "plan_sha256": { "type": "string" } }
+    },
+    "guides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "num", "title", "target_audience", "duration", "meta", "phases", "expected_output"],
+        "properties": {
+          "id": { "type": "string" },
+          "num": { "type": "string", "pattern": "^[0-9]{2}$" },
+          "title": { "type": "string" },
+          "target_audience": { "type": "string", "description": "访谈对象" },
+          "duration": { "type": "string" },
+          "meta": {
+            "type": "object",
+            "required": ["objectives", "capability_coverage_summary"],
+            "properties": {
+              "objectives": { "type": "string" },
+              "capability_coverage_summary": { "type": "string", "description": "如'媒介投放（2项L3）· 线索管理（4项L3）'" }
+            }
+          },
+          "phases": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 5,
+            "items": { "$ref": "#/$defs/phase" }
+          },
+          "expected_output": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "phase": {
+      "type": "object",
+      "required": ["phase_no", "name", "layer_type", "description"],
+      "properties": {
+        "phase_no": { "enum": [1, 2, 3, 4, 5] },
+        "name": { "type": "string", "description": "如'暖场破冰'" },
+        "layer_type": { "enum": ["intro", "panorama", "deepdive", "awaken", "expectation"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "blocks": {
+          "type": "array",
+          "description": "阶段2必填、阶段3可选；阶段1/4/5不填（直接列问题）",
+          "items": {
+            "type": "object",
+            "required": ["area_num", "area_title", "questions"],
+            "properties": {
+              "area_num": { "type": "integer" },
+              "area_title": { "type": "string" },
+              "capability_ref": {
+                "type": "object",
+                "required": ["l2_id", "l2_name"],
+                "properties": {
+                  "l2_id": { "type": "string" },
+                  "l2_name": { "type": "string" },
+                  "l3_names": { "type": "array", "items": { "type": "string" }, "description": "L3<=4时枚举名称" },
+                  "l3_count": { "type": "integer", "description": "L3>4时用计数，如'4项L3'" }
+                }
+              },
+              "questions": { "type": "array", "items": { "$ref": "#/$defs/question" } }
+            }
+          }
+        },
+        "questions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/question" }
+        }
+      }
+    },
+    "question": {
+      "type": "object",
+      "required": ["text", "probes"],
+      "properties": {
+        "text": { "type": "string" },
+        "probes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type", "text"],
+            "properties": {
+              "type": { "enum": ["追问", "引导思考"], "description": "阶段4必须'引导思考'，阶段1/2/3/5必须'追问'" },
+              "text": { "type": "string" }
+            }
+          }
+        },
+        "vs_refs": { "type": "array", "items": { "type": "string" }, "description": "价值流id引用" },
+        "capability_refs": { "type": "array", "items": { "type": "string" }, "description": "L2或L3 id引用" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

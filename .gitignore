@@ -1,0 +1,44 @@
+# OS / IDE
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+CACHEDIR.TAG
+
+# 客户工作区（含客户机密材料，禁止入库）
+workspace/
+workspaces/
+
+# 生成产物（由 runtime 从 JSON 确定性投影，不入库）
+**/output/
+**/candidate/
+deliverables/
+render_input.json
+release_manifest.json
+quality_report.json
+project_state.json
+
+# 交付文件类型
+*.docx
+*.pptx
+*.pdf
+*.png
+*.jpg
+*.jpeg
+
+# 本地发布与优化笔记
+*_optimization_*.md
+*_publish_notes.md

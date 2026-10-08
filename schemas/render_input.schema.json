@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude.skills/generate-bt-outline/render_input.schema.json",
+  "title": "RenderInput",
+  "description": "阶段04确定性投影：由 interview_guide_full + requirement 生成，是 HTML 与 docx 的唯一渲染源（同源约束）",
+  "type": "object",
+  "required": ["schema_version", "stage_id", "project_name", "source_guide_full_sha256", "meta", "cover", "background", "methodology", "toc", "vs_mapping_matrix", "guides"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "stage_id": { "const": "stage_04_rendering_release" },
+    "project_name": { "type": "string" },
+    "source_guide_full_sha256": { "type": "string", "description": "绑定的阶段03正式JSON sha256" },
+    "meta": {
+      "type": "object",
+      "required": ["client", "transformation_theme", "subtitle", "version", "date_text", "basis_meta", "footer_text"],
+      "properties": {
+        "client": { "type": "string" },
+        "transformation_theme": { "type": "string" },
+        "subtitle": { "type": "string", "description": "封面副标题，如'营销业务流程架构变革 — 访谈提纲总览'" },
+        "version": { "type": "string" },
+        "date_text": { "type": "string", "description": "如'2026 年 7 月'" },
+        "basis_meta": {
+          "type": "object",
+          "properties": {
+            "vs_count": { "type": "integer" },
+            "l2_count": { "type": "integer" },
+            "l3_count": { "type": "integer" },
+            "interview_count": { "type": "integer" }
+          }
+        },
+        "footer_text": { "type": "string", "description": "页脚主标题，如'XX（集团）流程变革项目 — 访谈提纲总览'" }
+      }
+    },
+    "cover": {
+      "type": "object",
+      "required": ["eyebrow", "h1", "subtitle", "meta_lines"],
+      "properties": {
+        "eyebrow": { "type": "string" },
+        "h1": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "meta_lines": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "background": { "type": "array", "items": { "type": "string" }, "description": "项目背景段落" },
+    "methodology": {
+      "type": "object",
+      "required": ["progression", "layer_definitions", "capability_alignment"],
+      "properties": {
+        "progression": { "type": "string" },
+        "layer_definitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "definition"],
+            "properties": { "name": { "type": "string" }, "definition": { "type": "string" } }
+          }
+        },
+        "capability_alignment": { "type": "string" }
+      }
+    },
+    "toc": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["num", "title", "scope_line", "target_audience", "filename"],
+        "properties": {
+          "num": { "type": "string" },
+          "title": { "type": "string" },
+          "scope_line": { "type": "string", "description": "如'战略层 · 5项L2能力组 · 13项L3'" },
+          "target_audience": { "type": "string" },
+          "filename": { "type": "string" }
+        }
+      }
+    },
+    "vs_mapping_matrix": {
+      "type": "object",
+      "required": ["vs_codes", "vs_short_names", "rows"],
+      "properties": {
+        "vs_codes": { "type": "array", "items": { "type": "string" } },
+        "vs_short_names": { "type": "array", "items": { "type": "string" } },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["interview_num", "title", "marks"],
+            "properties": {
+              "interview_num": { "type": "string" },
+              "title": { "type": "string" },
+              "marks": { "type": "array", "items": { "type": "boolean" }, "description": "每个VS是否覆盖，长度=vs_codes长度" }
+            }
+          }
+        }
+      }
+    },
+    "guides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["num", "title", "vs_tags", "layer_tag", "meta", "phases", "expected_output"],
+        "properties": {
+          "num": { "type": "string" },
+          "title": { "type": "string" },
+          "vs_tags": { "type": "array", "items": { "type": "string" }, "description": "场级VS标签，如['VS1 品牌信任构建']" },
+          "layer_tag": { "type": "string", "description": "场级层标签，如'核心层 · 2项L2 · 6项L3'" },
+          "meta": {
+            "type": "object",
+            "required": ["target_audience", "duration", "capability_coverage_summary"],
+            "properties": {
+              "target_audience": { "type": "string" },
+              "duration": { "type": "string" },
+              "capability_coverage_summary": { "type": "string" }
+            }
+          },
+          "phases": { "type": "array", "items": { "$ref": "#/$defs/phase" } },
+          "expected_output": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "phase": {
+      "type": "object",
+      "required": ["phase_no", "name", "layer_type", "title", "description"],
+      "properties": {
+        "phase_no": { "enum": [1, 2, 3, 4, 5] },
+        "name": { "type": "string" },
+        "layer_type": { "enum": ["intro", "panorama", "deepdive", "awaken", "expectation"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "blocks": { "type": "array", "items": { "type": "object" } },
+        "questions": { "type": "array", "items": { "$ref": "#/$defs/question" } }
+      }
+    },
+    "question": {
+      "type": "object",
+      "required": ["text", "probes"],
+      "properties": {
+        "text": { "type": "string" },
+        "probes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type", "text"],
+            "properties": { "type": { "enum": ["追问", "引导思考"] }, "text": { "type": "string" } }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

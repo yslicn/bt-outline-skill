@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude.skills/generate-bt-outline/input_baseline.schema.json",
+  "title": "InputBaseline",
+  "description": "阶段01产物：从5类输入材料解析出的信息基底（价值流/能力框架/干系人/战略核心矛盾/范围边界）",
+  "type": "object",
+  "required": ["schema_version", "stage_id", "project_name", "value_streams", "capability_model", "stakeholders", "strategic_tensions", "scope_boundaries"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "stage_id": { "const": "stage_01_input_baseline" },
+    "project_name": { "type": "string" },
+    "value_streams": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "short_name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "short_name": { "type": "string", "description": "简称，用于映射矩阵表头，如'品牌信任'" },
+          "trigger": { "type": "string" },
+          "outcome": { "type": "string" }
+        }
+      }
+    },
+    "capability_model": {
+      "type": "object",
+      "required": ["root", "layers"],
+      "properties": {
+        "root": {
+          "type": "object",
+          "required": ["id", "name"],
+          "properties": { "id": { "type": "string" }, "name": { "type": "string" } }
+        },
+        "layers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["attribute", "l2_groups"],
+            "properties": {
+              "attribute": { "enum": ["战略", "核心", "支持"] },
+              "l2_groups": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["id", "name", "l3"],
+                  "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" },
+                    "l3": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["id", "name"],
+                        "properties": { "id": { "type": "string" }, "name": { "type": "string" } }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "stakeholders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "role"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "enum": ["集团层", "公司层", "团队层", "外部", "客户"] },
+          "role": { "type": "string" },
+          "focus_areas": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "strategic_tensions": {
+      "type": "array",
+      "description": "战略核心矛盾，3-7条，必须可溯源到输入材料",
+      "minItems": 3,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "required": ["id", "statement", "source_ref"],
+        "properties": {
+          "id": { "type": "string" },
+          "statement": { "type": "string" },
+          "source_ref": { "type": "string", "description": "溯源：材料id或章节，如 strategy:materials/ref3#chapter2" }
+        }
+      }
+    },
+    "scope_boundaries": { "type": "array", "items": { "type": "string" } },
+    "data_gaps": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": false
+}

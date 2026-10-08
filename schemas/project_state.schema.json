@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude.skills/generate-bt-outline/project_state.schema.json",
+  "title": "ProjectState",
+  "description": "阶段状态机 + artifact hash + 评审绑定 + runs。状态流转 pending→in_progress→internal_review→user_review→locked",
+  "type": "object",
+  "required": ["schema_version", "project_name", "client", "industry", "transformation_theme", "created_at", "current_stage", "stages", "runs"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "project_name": { "type": "string" },
+    "client": { "type": "string" },
+    "industry": { "type": "string" },
+    "transformation_theme": { "type": "string" },
+    "created_at": { "type": "string" },
+    "current_stage": { "type": "string" },
+    "stages": {
+      "type": "object",
+      "minProperties": 5,
+      "propertyNames": { "enum": ["stage_00_scope_confirmation", "stage_01_input_baseline", "stage_02_interview_planning", "stage_03_interview_drafting", "stage_04_rendering_release"] },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status", "required_reviewers"],
+        "properties": {
+          "status": { "enum": ["pending", "in_progress", "internal_review", "user_review", "locked"] },
+          "required_reviewers": {
+            "type": "array",
+            "items": { "enum": ["architect", "business_expert"] },
+            "uniqueItems": true
+          },
+          "artifact": { "type": ["string", "null"] },
+          "artifact_sha256": { "type": ["string", "null"] },
+          "human_view": { "type": ["string", "null"] },
+          "review_bundle": { "type": ["string", "null"] },
+          "review_bundle_sha256": { "type": ["string", "null"] },
+          "human_views": { "type": ["array", "null"], "items": { "type": "string" } },
+          "reviews": {
+            "type": "object",
+            "properties": {
+              "architect": { "$ref": "#/$defs/review" },
+              "business_expert": { "$ref": "#/$defs/review" }
+            }
+          },
+          "user_approval": { "type": ["object", "null"], "additionalProperties": true },
+          "submitted_at": { "type": ["string", "null"] },
+          "locked_at": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stage_id", "role", "model", "task"],
+        "properties": {
+          "stage_id": { "type": "string" },
+          "role": { "type": "string" },
+          "model": { "type": "string" },
+          "task": { "type": "string" },
+          "recorded_at": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "review": {
+      "type": "object",
+      "required": ["decision", "artifact_sha256", "review_target_sha256", "reviewed_at"],
+      "properties": {
+        "decision": { "enum": ["PASS", "REVISE"] },
+        "artifact_sha256": { "type": "string" },
+        "review_target_sha256": { "type": "string" },
+        "reviewed_at": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude.skills/generate-bt-outline/interview_plan.schema.json",
+  "title": "InterviewPlan",
+  "description": "阶段02产物：N份访谈提纲规划 + 拆分逻辑 + 覆盖论证。方向门可迭代（用户REVISE）",
+  "type": "object",
+  "required": ["schema_version", "stage_id", "project_name", "split_logic", "interviews", "coverage"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "stage_id": { "const": "stage_02_interview_planning" },
+    "project_name": { "type": "string" },
+    "split_logic": {
+      "type": "object",
+      "required": ["criteria", "rationale"],
+      "properties": {
+        "criteria": { "type": "string", "description": "拆分判据，如'项目制/脉冲式 vs 运营制/持续性'" },
+        "rationale": { "type": "string", "description": "MECE论证：维度同一、边界互斥、合并无遗漏" }
+      }
+    },
+    "interviews": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "num", "title", "interview_direction", "expected_information", "value_stream_ids", "l2_capability_ids", "stakeholder_role_ids"],
+        "properties": {
+          "id": { "type": "string" },
+          "num": { "type": "string", "pattern": "^[0-9]{2}$", "description": "两位编号 01..NN" },
+          "title": { "type": "string" },
+          "interview_direction": { "type": "string" },
+          "expected_information": { "type": "array", "items": { "type": "string" } },
+          "value_stream_ids": { "type": "array", "items": { "type": "string" } },
+          "l2_capability_ids": { "type": "array", "items": { "type": "string" } },
+          "stakeholder_role_ids": { "type": "array", "items": { "type": "string" } },
+          "split_rationale": { "type": "string", "description": "本份为何独立成场的理由（REVISE时记录变更依据）" },
+          "duration_min": { "type": ["integer", "null"], "minimum": 30 }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["vs_coverage", "capability_coverage", "stakeholder_coverage", "documented_exclusions"],
+      "properties": {
+        "vs_coverage": { "type": "array", "items": { "type": "string" }, "description": "合并覆盖的价值流id" },
+        "capability_coverage": { "type": "array", "items": { "type": "string" }, "description": "合并覆盖的L2 id" },
+        "stakeholder_coverage": { "type": "array", "items": { "type": "string" }, "description": "合并覆盖的干系人id" },
+        "documented_exclusions": { "type": "array", "items": { "type": "string" }, "description": "显式排除及其理由" },
+        "gaps": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "additionalProperties": false
+}

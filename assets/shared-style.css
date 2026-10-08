@@ -1,0 +1,230 @@
+/* ── IBM Consulting Design System ── */
+:root {
+  --ibm-blue-90: #001D6C;
+  --ibm-blue-80: #002D9C;
+  --ibm-blue-70: #0043CE;
+  --ibm-blue-60: #0F62FE;
+  --ibm-blue-50: #4589FF;
+  --ibm-blue-20: #D0E2FF;
+  --ibm-blue-10: #EDF5FF;
+  --ibm-gray-100: #161616;
+  --ibm-gray-80: #393939;
+  --ibm-gray-60: #6F6F6F;
+  --ibm-gray-30: #C6C6C6;
+  --ibm-gray-10: #F4F4F4;
+  --ibm-gray-5: #F9F9F9;
+  --ibm-white: #FFFFFF;
+  --ibm-red-60: #DA1E28;
+  --ibm-teal-50: #007D79;
+  --ibm-green-50: #24A148;
+  --ibm-purple-60: #8A3FFC;
+  --ibm-magenta-60: #D02670;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+@page { size: A4; margin: 18mm 15mm; }
+@media print {
+  .page-break { page-break-before: always; }
+  .no-break { page-break-inside: avoid; }
+  body { font-size: 11pt; }
+}
+body {
+  font-family: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  color: var(--ibm-gray-100);
+  background: var(--ibm-white);
+  line-height: 1.65;
+  font-size: 15px;
+}
+a { color: var(--ibm-blue-60); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Cover ── */
+.cover {
+  background: linear-gradient(135deg, var(--ibm-blue-90) 0%, var(--ibm-blue-70) 100%);
+  color: white;
+  padding: 4rem 3rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.cover .eyebrow {
+  font-size: 0.85rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 1.5rem;
+}
+.cover h1 { font-size: 2.8rem; font-weight: 700; line-height: 1.15; margin-bottom: 1rem; }
+.cover .subtitle { font-size: 1.25rem; font-weight: 300; opacity: 0.85; margin-bottom: 3rem; max-width: 700px; }
+.cover .meta-line { font-size: 0.9rem; opacity: 0.6; margin-top: 0.3rem; }
+.cover .divider { width: 80px; height: 3px; background: var(--ibm-blue-50); margin: 2rem 0; }
+
+/* ── Content ── */
+.content { max-width: 880px; margin: 0 auto; padding: 2rem 0; }
+
+/* ── Header Bar (for sub-pages) ── */
+.header-bar {
+  background: var(--ibm-blue-90);
+  color: white;
+  padding: 1.5rem 3rem;
+}
+.header-bar .proj-name { font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; }
+.header-bar .doc-title { font-size: 1.1rem; font-weight: 600; margin-top: 0.3rem; }
+.header-bar a { color: var(--ibm-blue-50); font-size: 0.8rem; }
+
+/* ── Interview Header ── */
+.interview-header {
+  background: var(--ibm-blue-10);
+  border-left: 4px solid var(--ibm-blue-70);
+  padding: 2rem 2rem 1.5rem;
+  margin-bottom: 2rem;
+}
+.interview-header .interview-num {
+  font-size: 0.8rem; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--ibm-blue-60); margin-bottom: 0.5rem;
+}
+.interview-header h2 { font-size: 1.7rem; color: var(--ibm-blue-90); margin-bottom: 0.75rem; line-height: 1.3; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+.tag {
+  display: inline-block; padding: 0.2rem 0.65rem;
+  font-size: 0.75rem; font-weight: 500; border-radius: 2px;
+}
+.tag-blue { background: var(--ibm-blue-20); color: var(--ibm-blue-90); }
+.tag-teal { background: #DEFBE6; color: var(--ibm-teal-50); }
+.tag-gray { background: var(--ibm-gray-10); color: var(--ibm-gray-80); }
+.tag-purple { background: #F1E6FF; color: var(--ibm-purple-60); }
+.tag-magenta { background: #FFD6E8; color: var(--ibm-magenta-60); }
+
+/* ── Meta Table ── */
+.meta-table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 0.9rem; }
+.meta-table td {
+  padding: 0.6rem 1rem; border-bottom: 1px solid var(--ibm-gray-30); vertical-align: top;
+}
+.meta-table td:first-child {
+  font-weight: 600; color: var(--ibm-gray-80); width: 130px; white-space: nowrap;
+}
+
+/* ── Context Box ── */
+.context-box {
+  background: var(--ibm-gray-5); border: 1px solid var(--ibm-gray-30);
+  padding: 1.5rem; margin-bottom: 2rem; font-size: 0.92rem; line-height: 1.7;
+}
+.context-box .label {
+  font-weight: 700; color: var(--ibm-blue-70); font-size: 0.8rem;
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.5rem;
+}
+.context-box ul { padding-left: 1.2rem; margin-top: 0.4rem; }
+.context-box li { margin-bottom: 0.3rem; }
+
+/* ── Phase Section (递进层级) ── */
+.phase {
+  margin-bottom: 2.5rem;
+  page-break-inside: avoid;
+}
+.phase-label {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; margin-bottom: 0.3rem;
+}
+.phase-label .dot {
+  width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+}
+.phase-title {
+  font-size: 1.25rem; color: var(--ibm-blue-90); font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+.phase-desc {
+  font-size: 0.88rem; color: var(--ibm-gray-60); margin-bottom: 1.2rem;
+  font-style: italic;
+}
+.phase-sep {
+  border: none; border-top: 1px dashed var(--ibm-gray-30); margin: 2.5rem 0;
+}
+
+/* ── Discussion Block ── */
+.discussion-block { margin-bottom: 2rem; }
+.discussion-block h3 {
+  font-size: 1.05rem; color: var(--ibm-blue-90);
+  padding-bottom: 0.4rem; border-bottom: 1px solid var(--ibm-blue-20);
+  margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;
+}
+.discussion-block h3 .area-num {
+  background: var(--ibm-blue-70); color: white;
+  width: 24px; height: 24px; display: inline-flex; align-items: center;
+  justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+}
+.capability-ref {
+  font-size: 0.75rem; color: var(--ibm-gray-60); font-weight: 400; margin-left: 0.4rem;
+}
+
+/* ── Question ── */
+.question-group { margin-bottom: 1rem; }
+.question-group .q-label {
+  font-weight: 600; color: var(--ibm-gray-80); font-size: 0.85rem; margin-bottom: 0.3rem;
+}
+.question-group .q-context {
+  font-size: 0.82rem; color: var(--ibm-gray-60); margin-bottom: 0.25rem; font-style: italic;
+}
+.question-list { list-style: none; padding-left: 0; }
+.question-list li {
+  position: relative; padding: 0.5rem 0 0.5rem 1.5rem;
+  font-size: 0.92rem; line-height: 1.6; border-bottom: 1px solid var(--ibm-gray-10);
+}
+.question-list li::before {
+  content: "Q"; position: absolute; left: 0; color: var(--ibm-blue-60);
+  font-weight: 700; font-size: 0.75rem;
+}
+.question-list li:last-child { border-bottom: none; }
+.probe {
+  display: block; font-size: 0.82rem; color: var(--ibm-gray-60);
+  margin-top: 0.2rem; padding-left: 1.2rem; line-height: 1.5;
+}
+
+/* ── Output Box ── */
+.output-box {
+  background: var(--ibm-blue-10); border: 1px solid var(--ibm-blue-20);
+  padding: 1rem 1.5rem; margin-top: 1.5rem; font-size: 0.88rem;
+}
+.output-box .label {
+  font-weight: 700; color: var(--ibm-blue-70); font-size: 0.78rem;
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.4rem;
+}
+.output-box ul { padding-left: 1.2rem; }
+.output-box li { margin-bottom: 0.2rem; }
+
+/* ── Footer ── */
+.doc-footer {
+  text-align: center; padding: 3rem 0 2rem; color: var(--ibm-gray-60);
+  font-size: 0.82rem; border-top: 2px solid var(--ibm-blue-90); margin-top: 3rem;
+}
+
+/* ── Index Grid ── */
+.toc { padding: 2rem 0; }
+.toc h2 {
+  font-size: 1.6rem; color: var(--ibm-blue-90);
+  margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 2px solid var(--ibm-blue-60);
+}
+.toc-grid { display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
+.toc-item {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.8rem 1rem; background: var(--ibm-gray-5);
+  border-left: 3px solid var(--ibm-blue-50); font-size: 0.92rem;
+  text-decoration: none; color: var(--ibm-gray-100);
+  transition: background 0.15s;
+}
+.toc-item:hover { background: var(--ibm-blue-10); text-decoration: none; }
+.toc-item .num { font-weight: 700; color: var(--ibm-blue-70); min-width: 2rem; font-size: 1.05rem; }
+.toc-item .info { flex: 1; }
+.toc-item .title { font-weight: 600; display: block; }
+.toc-item .scope { color: var(--ibm-gray-60); font-size: 0.8rem; display: block; margin-top: 0.15rem; }
+
+/* ── Separator ── */
+.section-sep { border: none; border-top: 1px solid var(--ibm-gray-30); margin: 2rem 0; }
+
+/* ── Icebreaker style ── */
+.icebreaker-intro {
+  font-size: 0.9rem; color: var(--ibm-gray-60); line-height: 1.6;
+  margin-bottom: 0.8rem; padding: 0.8rem 1rem;
+  background: #FFF8E1; border-left: 3px solid #F1C21B;
+}

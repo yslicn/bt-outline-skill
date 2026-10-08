@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude.skills/generate-bt-outline/requirement.schema.json",
+  "title": "Requirement",
+  "description": "项目元信息 + 5类输入材料清单 + 交付格式 + scope_confirmed（阶段00启动硬门的产物）",
+  "type": "object",
+  "required": ["schema_version", "stage_id", "project_name", "client", "industry", "transformation_theme", "materials", "delivery_formats", "scope_confirmed", "scope_confirmed_at"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "stage_id": { "const": "stage_00_scope_confirmation" },
+    "project_name": { "type": "string", "minLength": 1 },
+    "client": { "type": "string" },
+    "industry": { "type": "string" },
+    "transformation_theme": { "type": "string", "description": "变革主题，如'营销服流程变革'" },
+    "scope_statement": { "type": "string", "description": "项目范围陈述" },
+    "materials": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "path", "format", "title"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["background", "strategy", "value_stream", "capability", "stakeholder"] },
+          "path": { "type": "string" },
+          "format": { "enum": ["pdf", "pptx", "docx", "xlsx", "md", "html", "txt"] },
+          "title": { "type": "string" }
+        }
+      }
+    },
+    "delivery_formats": {
+      "type": "array",
+      "items": { "enum": ["html", "docx"] },
+      "uniqueItems": true,
+      "minItems": 1,
+      "description": "交付格式，当前必须含 html 与 docx"
+    },
+    "scope_confirmed": { "const": true },
+    "scope_confirmed_at": { "type": "string", "format": "date-time" },
+    "data_gaps": {
+      "type": "array",
+      "description": "缺失材料声明；缺材料必须显式登记，不得静默忽略",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}
