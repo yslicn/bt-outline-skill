@@ -14,6 +14,10 @@
 
 </div>
 
+<p align="right">
+  <a href="README_EN.md">English</a>
+</p>
+
 ---
 
 ## ⚠️ 适用范围与使用限制
